@@ -1,157 +1,118 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8"/>
-  <title>征文示例</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <title>泡泡水波纹按钮示例</title>
   <style>
-    /* 清除默认边距，避免滚动条抖动 */
+    /* 让背景全黑，并在页面中心显示泡泡 */
     html, body {
-      margin: 0;
+      margin: 0; 
       padding: 0;
-      font-family: sans-serif;
-      /* 防止水平方向出现滚动条 */
-      overflow-x: hidden;
+      background-color: #000;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
-    /*********************************************
-     * 第一部分 (征文之前)
-     * 背景：深色 / 文字：浅色
-     *********************************************/
-    .section-pre {
-      background-color: #1b1b1b; /* 深色背景 */
-      color: #fff;
-      padding: 80px 20px;
-      text-align: center;
+    /* 
+      ==============
+      可点击的“泡泡”按钮
+      ==============
+      1) 使用 <a> 标签使其可跳转
+      2) 通过绝对定位 ::after 伪元素来做水波纹效果
+    */
+    a.bubble {
+      display: inline-block;
+      width: 150px;
+      height: 150px;
       position: relative;
-      min-height: 100vh;  /* 让此区块至少占满一个屏幕高度 */
-    }
-    .section-pre .title {
-      font-size: 2rem;
-      margin-top: 0;
-      position: relative;
-      z-index: 2; /* 确保标题文字盖在泡泡之上 */
-    }
-    /* 若需让标题在垂直方向也居中，可用 flex/绝对定位等方法，
-       这里只示范简单的居中布局。 */
-
-    /* 泡泡容器：相对定位，用来放置绝对定位的泡泡 */
-    .bubble-container {
-      position: relative;
-      width: 100%;
-      height: 60vh; /* 让泡泡在此范围内活动 */
-      margin: 40px auto 0 auto;
-    }
-
-    /*********************************************
-     * 泡泡样式
-     * 绝对定位 + 动画
-     *********************************************/
-    .bubble {
-      width: 80px;
-      height: 80px;
       border-radius: 50%;
+      text-decoration: none; /* 去除链接下划线 */
+      /* 泡泡本体的轻微高光，可以用径向渐变来表现 */
+      background: radial-gradient(
+        circle at 30% 30%, 
+        rgba(255,255,255,0.25), 
+        rgba(255,255,255,0) 70%
+      );
+      /* 小幅度上下浮动动画 */
+      animation: floatMove 3s ease-in-out infinite;
+    }
+
+    /* 浮动动画：泡泡上下移动 10px 左右的幅度 */
+    @keyframes floatMove {
+      0%   { transform: translateY(0px); }
+      50%  { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+
+    /* 
+      ==============
+      波纹边框伪元素
+      ==============
+      1) 位置略大于泡泡本体 => inset:-10px
+      2) 用 repeating-radial-gradient 模拟一圈圈的水波纹
+      3) 用 rotate 动画让波纹旋转，看上去像在流动
+    */
+    a.bubble::after {
+      content: "";
       position: absolute;
-      top: 50%;  /* 初始点：容器中心 */
-      left: 50%;
+      inset: -10px;
+      border-radius: 50%;
+      /* repeating-radial-gradient：制造圈圈波纹 */
+      background: repeating-radial-gradient(
+        circle,
+        rgba(255,255,255,0.3) 0 10%,  /* 0-10%为较亮环 */
+        transparent 10% 20%          /* 10%-20%为透明 */
+      );
+      animation: wave 4s linear infinite;
+    }
+
+    /* 波纹旋转动画，360度循环 */
+    @keyframes wave {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 
+      如果需要在泡泡内部显示文字/图标
+      可以直接在 <a> 标签里嵌个 <span>
+    */
+    a.bubble span {
+      position: absolute;
+      top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      background: linear-gradient(135deg, #ff0080, #ffaf00);
-      opacity: 0.8;
-      animation: floatBubble 8s ease-in-out infinite;
-      /* 可在后面用 nth-child 给每个泡泡设置不同的动画时间或延迟 */
-    }
-
-    /* 关键帧动画：让泡泡在周围上下移动，可根据需求拓展 */
-    @keyframes floatBubble {
-      0% {
-        transform: translate(-50%, -50%) scale(1);
-      }
-      50% {
-        transform: translate(calc(-50% + 100px), calc(-50% - 100px)) scale(1.2);
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(1);
-      }
-    }
-
-    /* 为不同泡泡设置动画延迟、不同渐变色，显得更随机多彩 */
-    .bubble:nth-child(1) {
-      animation-delay: 0s;
-    }
-    .bubble:nth-child(2) {
-      animation-delay: 1s;
-      background: linear-gradient(135deg, #00b2ff, #8cff00);
-    }
-    .bubble:nth-child(3) {
-      animation-delay: 2s;
-      background: linear-gradient(135deg, #8e2de2, #4a00e0);
-    }
-    .bubble:nth-child(4) {
-      animation-delay: 3s;
-      background: linear-gradient(135deg, #c31432, #240b36);
-    }
-    .bubble:nth-child(5) {
-      animation-delay: 4s;
-      background: linear-gradient(135deg, #f12711, #f5af19);
-    }
-
-    /* 文字示例 */
-    .section-pre p {
-      max-width: 700px;
-      margin: 30px auto;
-      line-height: 1.6;
-    }
-
-    /*********************************************
-     * 第二部分 (征文部分)
-     * 背景：浅色 / 文字：深色
-     *********************************************/
-    .section-zw {
-      background-color: #f4f4f4; /* 浅色背景 */
-      color: #333;
-      padding: 50px 20px;
+      color: #fff;
+      font-size: 1rem;
       text-align: center;
     }
-    .section-zw h2 {
-      margin-top: 0;
-      font-size: 1.8rem;
-    }
-    .section-zw p {
-      max-width: 800px;
-      margin: 20px auto;
-      line-height: 1.8;
-      text-align: left;
+
+    /* 悬停时，让波纹略亮，看起来更明显 */
+    a.bubble:hover::after {
+      background: repeating-radial-gradient(
+        circle,
+        rgba(255,255,255,0.5) 0 10%, 
+        transparent 10% 20%
+      );
     }
 
-    /*********************************************
-     * 响应式微调
-     *********************************************/
+    /* 也可根据需求对移动端尺寸进行缩放 */
     @media (max-width: 480px) {
-      /* 移动端可让泡泡略小 */
-      .bubble {
-        width: 60px;
-        height: 60px;
-      }
-      .section-pre .title {
-        font-size: 1.5rem;
+      a.bubble {
+        width: 100px;
+        height: 100px;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- 上半部分：征文之前 -->
-  <section class="section-pre">
-    <h1 class="title">征文之前的部分</h1>
+  <!-- 使用 <a> 实现点击跳转，href 指向任何你想去的链接 -->
+  <a class="bubble" href="https://example.com" title="跳转到示例网站">
+    <!-- 在泡泡中显示一个文字/图标 -->
+    <span>点我</span>
+  </a>
 
-    <!-- 泡泡容器，包含 5 个示例泡泡 -->
-    <div class="bubble-container">
-      <div class="bubble"></div>
-      <div class="bubble"></div>
-      <div class="bubble"></div>
-      <div class="bubble"></div>
-      <div class="bubble"></div>
-    </div>
 
     <!-- 征文之前的文字说明 -->
     <p>此处可以放置一些“征文前”的说明、活动背景介绍等内容。背景是深色，文字为浅色，并且标题位于正中央，泡泡围绕其左右上下随机移动，增添炫酷感。</p>
