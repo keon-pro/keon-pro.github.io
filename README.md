@@ -5,7 +5,7 @@ title: 我的炫酷个人网站
 
 <!-- 英雄区（Hero Section） -->
 <section class="hero">
-  <h1 class="hero-title">欢迎来到我的炫酷个人网站</h1>
+  <h1 class="hero-title">欢迎来到我的个人网站</h1>
   <p class="hero-subtitle">
     这里可以放一段简短的自我介绍，或者你想展示的个性签名、座右铭等。
   </p>
