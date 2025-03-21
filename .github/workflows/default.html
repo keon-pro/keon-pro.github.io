@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ page.title | escape }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- 在此处直接内嵌CSS，包含动画与样式 -->
+  <style>
+    /* --- 页面整体与背景动画 --- */
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    /* 利用渐变+动画制作背景流动效果 */
+    .hero {
+      /* 用多色渐变来营造“炫酷”背景，具体配色可自行调整 */
+      background: linear-gradient(270deg, #ff6f91, #ff9671, #ffc75f, #f9f871);
+      background-size: 800% 800%;
+      animation: gradientShift 10s ease infinite;
+
+      padding: 100px 20px;
+      text-align: center;
+      color: #fff;
+    }
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    /* --- 主标题的淡入&上移动画 --- */
+    .hero-title {
+      font-size: 3rem;
+      margin: 0 auto 20px auto;
+      max-width: 800px;
+      animation: fadeInUp 2s ease forwards;
+    }
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 副标题/介绍文字 */
+    .hero-subtitle {
+      font-size: 1.3rem;
+      line-height: 1.6;
+      margin: 0 auto 40px auto;
+      max-width: 600px;
+      opacity: 0.9;
+    }
+
+    /* --- 浮动动画示例 --- */
+    .floating-icon {
+      width: 120px;
+      margin: 40px auto;
+      animation: floatIcon 3s ease-in-out infinite;
+      display: block;
+    }
+    @keyframes floatIcon {
+      0% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    /* --- 鼠标悬停旋转动画示例 --- */
+    .spin-hover {
+      transition: transform 0.5s;
+      display: inline-block;
+    }
+    .spin-hover:hover {
+      transform: rotate(360deg);
+    }
+
+    /* --- 按钮的脉冲动画 --- */
+    .animated-button {
+      display: inline-block;
+      text-decoration: none;
+      padding: 15px 30px;
+      color: #ff6f91;
+      background-color: #fff;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+    .animated-button:hover {
+      background-color: #ffc75f; /* 鼠标悬停时按钮变色 */
+      color: #fff;
+    }
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* 简单的卡片式布局示例 */
+    .cards-container {
+      max-width: 1000px;
+      margin: 50px auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 0 20px;
+    }
+    .card {
+      background: #fff;
+      color: #333;
+      width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card img {
+      width: 100%;
+      display: block;
+    }
+    .card-content {
+      padding: 15px;
+    }
+    .card-content h3 {
+      margin-top: 0;
+    }
+    .card-content p {
+      line-height: 1.6;
+    }
+
+    /* 页脚 */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #f1f1f1;
+      color: #555;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 这里是页面主体内容，Jekyll 会将 markdown 的内容替换到此处 -->
+  {{ content }}
+
+  <!-- 也可在此处放置通用的页脚或JS，如果需要 -->
+</body>
+</html>
