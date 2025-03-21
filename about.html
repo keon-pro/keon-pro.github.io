@@ -1,139 +1,224 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title>泡泡水波纹按钮示例</title>
+  <meta charset="UTF-8" />
+  <title>均匀散开水波纹泡泡示例</title>
   <style>
-    /* 让背景全黑，并在页面中心显示泡泡 */
+    /* 
+      ==============
+      页面基础设置
+      ==============
+    */
     html, body {
-      margin: 0; 
+      margin: 0;
       padding: 0;
-      background-color: #000;
+      background: #000;  /* 黑色背景 */
       height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      overflow: hidden;  /* 隐藏可能出现的滚动条 */
+      font-family: Arial, sans-serif;
     }
 
     /* 
       ==============
-      可点击的“泡泡”按钮
+      容器：用来放置中央文本与泡泡 
       ==============
-      1) 使用 <a> 标签使其可跳转
-      2) 通过绝对定位 ::after 伪元素来做水波纹效果
+      1) 宽高可根据需要调整
+      2) 令其居中于视口
     */
-    a.bubble {
-      display: inline-block;
-      width: 150px;
-      height: 150px;
+    .container {
       position: relative;
+      width: 500px;
+      height: 500px;
+      margin: auto;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    /* 
+      中央文本
+      白色字体，置于最上层，避免被泡泡覆盖 
+    */
+    .center-text {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 1.4rem;
+      text-align: center;
+      z-index: 2;  /* 确保文本在泡泡之上 */
+    }
+
+    /* 
+      ==============
+      统一的泡泡基础样式
+      ==============
+      1) 绝对定位到 .container 内
+      2) 大小、圆形
+      3) 背景做一个简单的径向渐变或透明
+      4) 波纹边框 + 小幅浮动动画
+    */
+    .bubble {
+      position: absolute;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
-      text-decoration: none; /* 去除链接下划线 */
-      /* 泡泡本体的轻微高光，可以用径向渐变来表现 */
-      background: radial-gradient(
-        circle at 30% 30%, 
-        rgba(255,255,255,0.25), 
-        rgba(255,255,255,0) 70%
-      );
-      /* 小幅度上下浮动动画 */
+      text-decoration: none; /* 去除链接默认下划线 */
+      background: radial-gradient(circle at 30% 30%, 
+                                  rgba(255, 255, 255, 0.25),
+                                  rgba(255, 255, 255, 0) 70%);
       animation: floatMove 3s ease-in-out infinite;
     }
 
-    /* 浮动动画：泡泡上下移动 10px 左右的幅度 */
+    /* 泡泡的文字（若想在泡泡上放文字/图标）可用 span 或直接写 <a> 文本 
+       这里默认不显示文字，若需要可解注释 
+    */
+    /*
+    .bubble span {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    */
+
+    /* 
+      ==============
+      小幅度浮动动画
+      ==============
+      循环上下移动10px
+    */
     @keyframes floatMove {
-      0%   { transform: translateY(0px); }
+      0%   { transform: translateY(0); }
       50%  { transform: translateY(-10px); }
-      100% { transform: translateY(0px); }
+      100% { transform: translateY(0); }
     }
 
     /* 
       ==============
-      波纹边框伪元素
+      水波纹边框伪元素 
       ==============
-      1) 位置略大于泡泡本体 => inset:-10px
-      2) 用 repeating-radial-gradient 模拟一圈圈的水波纹
-      3) 用 rotate 动画让波纹旋转，看上去像在流动
+      使用 repeating-radial-gradient + rotate 做波纹循环
     */
-    a.bubble::after {
+    .bubble::after {
       content: "";
       position: absolute;
-      inset: -10px;
+      inset: -8px;
       border-radius: 50%;
-      /* repeating-radial-gradient：制造圈圈波纹 */
       background: repeating-radial-gradient(
         circle,
-        rgba(255,255,255,0.3) 0 10%,  /* 0-10%为较亮环 */
-        transparent 10% 20%          /* 10%-20%为透明 */
+        rgba(255,255,255,0.3) 0 10%,
+        transparent 10% 20%
       );
       animation: wave 4s linear infinite;
     }
-
-    /* 波纹旋转动画，360度循环 */
     @keyframes wave {
       0%   { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
 
-    /* 
-      如果需要在泡泡内部显示文字/图标
-      可以直接在 <a> 标签里嵌个 <span>
-    */
-    a.bubble span {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      color: #fff;
-      font-size: 1rem;
-      text-align: center;
-    }
-
-    /* 悬停时，让波纹略亮，看起来更明显 */
-    a.bubble:hover::after {
+    .bubble:hover::after {
+      /* 悬停时，让波纹更明显 */
       background: repeating-radial-gradient(
         circle,
-        rgba(255,255,255,0.5) 0 10%, 
+        rgba(255,255,255,0.5) 0 10%,
         transparent 10% 20%
       );
     }
 
-    /* 也可根据需求对移动端尺寸进行缩放 */
+    /* 
+      ==============
+      环形分布 
+      ==============
+      我们放置5个泡泡，均匀散开在圆周上。
+      半径可按需求调整，这里用 150px。
+      nth-child(1)到(5)每次增加72度 (360/5=72)
+    */
+    /* 这里的 .bubble1 ~ .bubble5 指的是5个泡泡，
+       也可更多或更少，只需更改角度即可 */
+
+    .bubble1 {
+      top:  calc(50% + 150px * sin(0deg));
+      left: calc(50% + 150px * cos(0deg));
+      animation-delay: 0s;
+    }
+    .bubble2 {
+      top:  calc(50% + 150px * sin(72deg));
+      left: calc(50% + 150px * cos(72deg));
+      animation-delay: 0.5s;
+    }
+    .bubble3 {
+      top:  calc(50% + 150px * sin(144deg));
+      left: calc(50% + 150px * cos(144deg));
+      animation-delay: 1s;
+    }
+    .bubble4 {
+      top:  calc(50% + 150px * sin(216deg));
+      left: calc(50% + 150px * cos(216deg));
+      animation-delay: 1.5s;
+    }
+    .bubble5 {
+      top:  calc(50% + 150px * sin(288deg));
+      left: calc(50% + 150px * cos(288deg));
+      animation-delay: 2s;
+    }
+
+    /*
+      ==============
+      媒体查询(可选)
+      ==============
+      移动端上缩小泡泡大小 & 半径
+    */
     @media (max-width: 480px) {
-      a.bubble {
-        width: 100px;
-        height: 100px;
+      .container {
+        width: 300px;
+        height: 300px;
+      }
+      .bubble {
+        width: 60px;
+        height: 60px;
+      }
+      .bubble1 {
+        top:  calc(50% + 100px * sin(0deg));
+        left: calc(50% + 100px * cos(0deg));
+      }
+      .bubble2 {
+        top:  calc(50% + 100px * sin(72deg));
+        left: calc(50% + 100px * cos(72deg));
+      }
+      .bubble3 {
+        top:  calc(50% + 100px * sin(144deg));
+        left: calc(50% + 100px * cos(144deg));
+      }
+      .bubble4 {
+        top:  calc(50% + 100px * sin(216deg));
+        left: calc(50% + 100px * cos(216deg));
+      }
+      .bubble5 {
+        top:  calc(50% + 100px * sin(288deg));
+        left: calc(50% + 100px * cos(288deg));
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- 使用 <a> 实现点击跳转，href 指向任何你想去的链接 -->
-  <a class="bubble" href="https://example.com" title="跳转到示例网站">
-    <!-- 在泡泡中显示一个文字/图标 -->
-    <span>点我</span>
-  </a>
+<div class="container">
+  <!-- 中央文本，白色可见 -->
+  <div class="center-text">
+    <h1>这里是中央文字</h1>
+    <p>泡泡均匀散落在周围，鼠标悬停有波纹动画，点击可跳转</p>
+  </div>
 
-
-    <!-- 征文之前的文字说明 -->
-    <p>此处可以放置一些“征文前”的说明、活动背景介绍等内容。背景是深色，文字为浅色，并且标题位于正中央，泡泡围绕其左右上下随机移动，增添炫酷感。</p>
-  </section>
-
-  <!-- 下半部分：征文部分 -->
-  <section class="section-zw">
-    <h2>征文部分</h2>
-    <p>
-      欢迎各位作者投稿！这里是征文的主要内容区段，背景更明亮，文字颜色为深色，形成与上半部分明显的视觉分割。
-      你可以在此写下征文的规则、主题、征文要求与参与方式，示例：<br>
-      <strong>征文主题</strong>：聚焦前沿技术与生活美学的交融<br>
-      <strong>投稿要求</strong>：原创作品，篇幅 2000-5000 字<br>
-      <strong>截止时间</strong>：2025年12月31日<br>
-      <strong>投稿方式</strong>：请将文章发送至 example@domain.com，并在标题注明【征文投稿】+ 作品名
-    </p>
-    <p>
-      也可在此添加更多活动细节介绍、评选流程、奖项设置等内容，让参与者一目了然。部分编排示例完毕。
-      如需更多个性化修改，可自行调整布局、颜色和动画逻辑。祝活动圆满成功！
-    </p>
-  </section>
+  <!-- 5个可点击的泡泡 -->
+  <!-- 根据需要修改 href，实现跳转到不同页面或链接 -->
+  <a class="bubble bubble1" href="https://example.com"></a>
+  <a class="bubble bubble2" href="https://example.com"></a>
+  <a class="bubble bubble3" href="https://example.com"></a>
+  <a class="bubble bubble4" href="https://example.com"></a>
+  <a class="bubble bubble5" href="https://example.com"></a>
+</div>
 
 </body>
 </html>
