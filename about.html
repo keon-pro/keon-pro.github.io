@@ -1,169 +1,178 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <title>About - 我的网站</title>
+  <meta charset="UTF-8"/>
+  <title>征文示例</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    /* 
-      ==============
-      全局黑色主题
-      ==============
-    */
+    /* 清除默认边距，避免滚动条抖动 */
     html, body {
       margin: 0;
       padding: 0;
-      background-color: #000;
+      font-family: sans-serif;
+      /* 防止水平方向出现滚动条 */
+      overflow-x: hidden;
+    }
+
+    /*********************************************
+     * 第一部分 (征文之前)
+     * 背景：深色 / 文字：浅色
+     *********************************************/
+    .section-pre {
+      background-color: #1b1b1b; /* 深色背景 */
       color: #fff;
-      font-family: Arial, sans-serif;
-    }
-    /* 主容器，使内容居中并留出上下空间 */
-    .about-container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 40px 20px;
+      padding: 80px 20px;
       text-align: center;
+      position: relative;
+      min-height: 100vh;  /* 让此区块至少占满一个屏幕高度 */
     }
-    h1 {
-      margin-top: 0;
+    .section-pre .title {
       font-size: 2rem;
+      margin-top: 0;
+      position: relative;
+      z-index: 2; /* 确保标题文字盖在泡泡之上 */
     }
-    p {
-      line-height: 1.6;
-      font-size: 1rem;
-      margin-bottom: 20px;
-    }
+    /* 若需让标题在垂直方向也居中，可用 flex/绝对定位等方法，
+       这里只示范简单的居中布局。 */
 
-    /* 
-      ==============
-      5个炫富泡泡
-      ==============
-    */
+    /* 泡泡容器：相对定位，用来放置绝对定位的泡泡 */
     .bubble-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 40px;
+      position: relative;
+      width: 100%;
+      height: 60vh; /* 让泡泡在此范围内活动 */
+      margin: 40px auto 0 auto;
     }
 
-    /* 基础泡泡样式：圆形、动画、渐变背景、放大阴影 */
+    /*********************************************
+     * 泡泡样式
+     * 绝对定位 + 动画
+     *********************************************/
     .bubble {
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      color: #fff;
-      font-weight: bold;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      animation: float-bubble 3s ease-in-out infinite;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    .bubble span {
-      text-align: center;
-    }
-    /* 鼠标悬停时，略微放大并增亮阴影 */
-    .bubble:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
-    }
-
-    /* 不同泡泡的渐变色示例 */
-    .bubble1 {
+      position: absolute;
+      top: 50%;  /* 初始点：容器中心 */
+      left: 50%;
+      transform: translate(-50%, -50%);
       background: linear-gradient(135deg, #ff0080, #ffaf00);
-    }
-    .bubble2 {
-      background: linear-gradient(135deg, #00b2ff, #8cff00);
-    }
-    .bubble3 {
-      background: linear-gradient(135deg, #8e2de2, #4a00e0);
-    }
-    .bubble4 {
-      background: linear-gradient(135deg, #c31432, #240b36);
-    }
-    .bubble5 {
-      background: linear-gradient(135deg, #f12711, #f5af19);
+      opacity: 0.8;
+      animation: floatBubble 8s ease-in-out infinite;
+      /* 可在后面用 nth-child 给每个泡泡设置不同的动画时间或延迟 */
     }
 
-    /* 关键帧动画，让泡泡上下浮动 */
-    @keyframes float-bubble {
-      0%   { transform: translateY(0); }
-      50%  { transform: translateY(-15px); }
-      100% { transform: translateY(0); }
-    }
-
-    /* 调整在移动端的尺寸 */
-    @media (max-width: 480px) {
-      .bubble {
-        width: 80px;
-        height: 80px;
-        font-size: 0.8rem;
+    /* 关键帧动画：让泡泡在周围上下移动，可根据需求拓展 */
+    @keyframes floatBubble {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+      50% {
+        transform: translate(calc(-50% + 100px), calc(-50% - 100px)) scale(1.2);
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
       }
     }
 
-    /* 
-      ==============
-      示例文章内容
-      ============== 
-    */
-    .article-section {
-      text-align: left;
-      margin-top: 40px;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      border-radius: 8px;
+    /* 为不同泡泡设置动画延迟、不同渐变色，显得更随机多彩 */
+    .bubble:nth-child(1) {
+      animation-delay: 0s;
     }
-    .article-section h2 {
-      margin-top: 0;
-      font-size: 1.4rem;
-      color: #ffc75f;
+    .bubble:nth-child(2) {
+      animation-delay: 1s;
+      background: linear-gradient(135deg, #00b2ff, #8cff00);
     }
-    .article-section p {
-      margin-bottom: 15px;
+    .bubble:nth-child(3) {
+      animation-delay: 2s;
+      background: linear-gradient(135deg, #8e2de2, #4a00e0);
+    }
+    .bubble:nth-child(4) {
+      animation-delay: 3s;
+      background: linear-gradient(135deg, #c31432, #240b36);
+    }
+    .bubble:nth-child(5) {
+      animation-delay: 4s;
+      background: linear-gradient(135deg, #f12711, #f5af19);
     }
 
+    /* 文字示例 */
+    .section-pre p {
+      max-width: 700px;
+      margin: 30px auto;
+      line-height: 1.6;
+    }
+
+    /*********************************************
+     * 第二部分 (征文部分)
+     * 背景：浅色 / 文字：深色
+     *********************************************/
+    .section-zw {
+      background-color: #f4f4f4; /* 浅色背景 */
+      color: #333;
+      padding: 50px 20px;
+      text-align: center;
+    }
+    .section-zw h2 {
+      margin-top: 0;
+      font-size: 1.8rem;
+    }
+    .section-zw p {
+      max-width: 800px;
+      margin: 20px auto;
+      line-height: 1.8;
+      text-align: left;
+    }
+
+    /*********************************************
+     * 响应式微调
+     *********************************************/
+    @media (max-width: 480px) {
+      /* 移动端可让泡泡略小 */
+      .bubble {
+        width: 60px;
+        height: 60px;
+      }
+      .section-pre .title {
+        font-size: 1.5rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- 主容器 -->
-  <div class="about-container">
-    <!-- 页面标题 -->
-    <h1>关于我</h1>
-    <p>欢迎来到“关于”页面。这是一个炫酷黑色主题页面，内含五个色彩斑斓的泡泡按钮，示范可供跳转到任意页面。</p>
-    <p>你可以在此处编写简要的个人简介、网站信息、联系方式等。页面主体完全可自行修改。</p>
 
-    <!-- 炫富泡泡区域 -->
+  <!-- 上半部分：征文之前 -->
+  <section class="section-pre">
+    <h1 class="title">征文之前的部分</h1>
+
+    <!-- 泡泡容器，包含 5 个示例泡泡 -->
     <div class="bubble-container">
-      <!-- 点击后跳转到不同页面 -->
-      <a href="index.html" class="bubble bubble1">
-        <span>泡泡 1</span>
-      </a>
-      <a href="projects.html" class="bubble bubble2">
-        <span>泡泡 2</span>
-      </a>
-      <a href="articles.html" class="bubble bubble3">
-        <span>泡泡 3</span>
-      </a>
-      <a href="contact.html" class="bubble bubble4">
-        <span>泡泡 4</span>
-      </a>
-      <a href="store.html" class="bubble bubble5">
-        <span>泡泡 5</span>
-      </a>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
     </div>
 
-    <!-- 示例文章内容 -->
-    <div class="article-section">
-      <h2>示例文章标题</h2>
-      <p>这是一个简短的示例文章段落，你可以在这里写一段自我介绍、心路历程、或者对网站用途的阐述。例如：我是某某开发者/博主，喜欢分享编程技巧和生活感悟。以下是我的个人经历概述：</p>
-      <p>初次接触编程时，我对计算机科学一无所知；在自学过程中，经历了无数的报错与调试，却感受到了解决问题的成就感。我希望通过此网站，记录并分享我的所学所感，让更多人受益或找到共鸣。</p>
-      <p>除编程外，我也热衷于阅读、写作、音乐创作等。若你对此感兴趣，欢迎与我交流。一同在这个数字时代，创造并享受美好！</p>
-    </div>
-  </div>
+    <!-- 征文之前的文字说明 -->
+    <p>此处可以放置一些“征文前”的说明、活动背景介绍等内容。背景是深色，文字为浅色，并且标题位于正中央，泡泡围绕其左右上下随机移动，增添炫酷感。</p>
+  </section>
+
+  <!-- 下半部分：征文部分 -->
+  <section class="section-zw">
+    <h2>征文部分</h2>
+    <p>
+      欢迎各位作者投稿！这里是征文的主要内容区段，背景更明亮，文字颜色为深色，形成与上半部分明显的视觉分割。
+      你可以在此写下征文的规则、主题、征文要求与参与方式，示例：<br>
+      <strong>征文主题</strong>：聚焦前沿技术与生活美学的交融<br>
+      <strong>投稿要求</strong>：原创作品，篇幅 2000-5000 字<br>
+      <strong>截止时间</strong>：2025年12月31日<br>
+      <strong>投稿方式</strong>：请将文章发送至 example@domain.com，并在标题注明【征文投稿】+ 作品名
+    </p>
+    <p>
+      也可在此添加更多活动细节介绍、评选流程、奖项设置等内容，让参与者一目了然。部分编排示例完毕。
+      如需更多个性化修改，可自行调整布局、颜色和动画逻辑。祝活动圆满成功！
+    </p>
+  </section>
+
 </body>
 </html>
