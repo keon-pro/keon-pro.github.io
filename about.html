@@ -156,12 +156,12 @@
         const cy = centerY + (Math.random() * 2 - 1) * offsetY;
 
         // 椭圆半径 a, b
-        const a = 100 + Math.random() * 500;
-        const b = 80 + Math.random() * 500;
+        const a = 600 + Math.random() * 500;
+        const b = 100 + Math.random() * 500;
 
         // 初始角度 & 速度
         let angle = Math.random() * 360;
-        let speed = 70 + Math.random() * 40;
+        let speed = 200 + Math.random() * 40;
 
         // 创建 DOM
         const el = document.createElement("div");
@@ -180,7 +180,7 @@
     // 动画循环
     function animate() {
         shapes.forEach(shape => {
-            shape.angle += shape.speed / 100; // 速度
+            shape.angle += shape.speed / 240; // 速度
             shape.angle %= 360;
 
             const rad = shape.angle * (Math.PI/180);
