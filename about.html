@@ -1,224 +1,199 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <title>均匀散开水波纹泡泡示例</title>
-  <style>
-    /* 
-      ==============
-      页面基础设置
-      ==============
-    */
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: #000;  /* 黑色背景 */
-      height: 100vh;
-      overflow: hidden;  /* 隐藏可能出现的滚动条 */
-      font-family: Arial, sans-serif;
-    }
+    <meta charset="UTF-8" />
+    <title>椭圆高速旋转 - 图案示例(黑色背景+整体模糊)</title>
+    <style>
+        /*
+          =============
+          页面整体设置
+          =============
+          1) 纯黑背景
+          2) 不出现滚动条
+        */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000; /* 背景纯黑 */
+            font-family: sans-serif;
+        }
 
-    /* 
-      ==============
-      容器：用来放置中央文本与泡泡 
-      ==============
-      1) 宽高可根据需要调整
-      2) 令其居中于视口
-    */
-    .container {
-      position: relative;
-      width: 500px;
-      height: 500px;
-      margin: auto;
-      top: 50%;
-      transform: translateY(-50%);
-    }
+        /*
+          =============
+          容器
+          =============
+          1) 占满整个视口
+          2) 使用 filter: blur(...) 让容器内所有元素都被模糊处理
+             若你想让图案保持清晰，只模糊纯背景，则需要别的思路，
+             但本示例按"将整个画面作为背景添加模糊"的需求来做。
+        */
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
 
-    /* 
-      中央文本
-      白色字体，置于最上层，避免被泡泡覆盖 
-    */
-    .center-text {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      color: #fff;
-      font-size: 1.4rem;
-      text-align: center;
-      z-index: 2;  /* 确保文本在泡泡之上 */
-    }
+            /* 整个容器加滤镜 => 里面的形状也会跟随一起模糊 */
+            filter: blur(2px);
+            /* 可根据需求调整模糊半径，如5px/10px等 */
+        }
 
-    /* 
-      ==============
-      统一的泡泡基础样式
-      ==============
-      1) 绝对定位到 .container 内
-      2) 大小、圆形
-      3) 背景做一个简单的径向渐变或透明
-      4) 波纹边框 + 小幅浮动动画
-    */
-    .bubble {
-      position: absolute;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      text-decoration: none; /* 去除链接默认下划线 */
-      background: radial-gradient(circle at 30% 30%, 
-                                  rgba(255, 255, 255, 0.25),
-                                  rgba(255, 255, 255, 0) 70%);
-      animation: floatMove 3s ease-in-out infinite;
-    }
+        /*
+          =============
+          图案基础样式
+          =============
+          1) 半透明 + 磨砂玻璃质感(backdrop-filter)
+          2) 拖尾效果(transition)
+          （此处虽然有backdrop-filter, 但最终仍会被外层container的filter叠加）
+        */
+        .shape {
+            position: absolute;
+            width: 40px;
+            height: 40px;
 
-    /* 泡泡的文字（若想在泡泡上放文字/图标）可用 span 或直接写 <a> 文本 
-       这里默认不显示文字，若需要可解注释 
-    */
-    /*
-    .bubble span {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      color: #fff;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-    */
+            /* 通过透明度+blur来模拟"磨砂玻璃" */
+            background: rgba(255,255,255, 0.15);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
 
-    /* 
-      ==============
-      小幅度浮动动画
-      ==============
-      循环上下移动10px
-    */
-    @keyframes floatMove {
-      0%   { transform: translateY(0); }
-      50%  { transform: translateY(-10px); }
-      100% { transform: translateY(0); }
-    }
+            /* 拖尾：更新 transform 时，会在 0.7s 内平滑过渡 */
+            /*transition: transform 0.1s linear;*/
+        }
 
-    /* 
-      ==============
-      水波纹边框伪元素 
-      ==============
-      使用 repeating-radial-gradient + rotate 做波纹循环
-    */
-    .bubble::after {
-      content: "";
-      position: absolute;
-      inset: -8px;
-      border-radius: 50%;
-      background: repeating-radial-gradient(
-        circle,
-        rgba(255,255,255,0.3) 0 10%,
-        transparent 10% 20%
-      );
-      animation: wave 4s linear infinite;
-    }
-    @keyframes wave {
-      0%   { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .bubble:hover::after {
-      /* 悬停时，让波纹更明显 */
-      background: repeating-radial-gradient(
-        circle,
-        rgba(255,255,255,0.5) 0 10%,
-        transparent 10% 20%
-      );
-    }
-
-    /* 
-      ==============
-      环形分布 
-      ==============
-      我们放置5个泡泡，均匀散开在圆周上。
-      半径可按需求调整，这里用 150px。
-      nth-child(1)到(5)每次增加72度 (360/5=72)
-    */
-    /* 这里的 .bubble1 ~ .bubble5 指的是5个泡泡，
-       也可更多或更少，只需更改角度即可 */
-
-    .bubble1 {
-      top:  calc(50% + 150px * sin(0deg));
-      left: calc(50% + 150px * cos(0deg));
-      animation-delay: 0s;
-    }
-    .bubble2 {
-      top:  calc(50% + 150px * sin(72deg));
-      left: calc(50% + 150px * cos(72deg));
-      animation-delay: 0.5s;
-    }
-    .bubble3 {
-      top:  calc(50% + 150px * sin(144deg));
-      left: calc(50% + 150px * cos(144deg));
-      animation-delay: 1s;
-    }
-    .bubble4 {
-      top:  calc(50% + 150px * sin(216deg));
-      left: calc(50% + 150px * cos(216deg));
-      animation-delay: 1.5s;
-    }
-    .bubble5 {
-      top:  calc(50% + 150px * sin(288deg));
-      left: calc(50% + 150px * cos(288deg));
-      animation-delay: 2s;
-    }
-
-    /*
-      ==============
-      媒体查询(可选)
-      ==============
-      移动端上缩小泡泡大小 & 半径
-    */
-    @media (max-width: 480px) {
-      .container {
-        width: 300px;
-        height: 300px;
-      }
-      .bubble {
-        width: 60px;
-        height: 60px;
-      }
-      .bubble1 {
-        top:  calc(50% + 100px * sin(0deg));
-        left: calc(50% + 100px * cos(0deg));
-      }
-      .bubble2 {
-        top:  calc(50% + 100px * sin(72deg));
-        left: calc(50% + 100px * cos(72deg));
-      }
-      .bubble3 {
-        top:  calc(50% + 100px * sin(144deg));
-        left: calc(50% + 100px * cos(144deg));
-      }
-      .bubble4 {
-        top:  calc(50% + 100px * sin(216deg));
-        left: calc(50% + 100px * cos(216deg));
-      }
-      .bubble5 {
-        top:  calc(50% + 100px * sin(288deg));
-        left: calc(50% + 100px * cos(288deg));
-      }
-    }
-  </style>
+        /* 各种形状定义 */
+        /* 圆形 */
+        .circle {
+            border-radius: 50%;
+        }
+        /* 正方形 */
+        .square {
+            /* 默认就行 */
+        }
+        /* 三角形 */
+        .triangle {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        /* 五角星 */
+        .star {
+            clip-path: polygon(
+                    50% 0%, 61% 35%, 98% 35%, 68% 57%,
+                    79% 91%, 50% 70%, 21% 91%, 32% 57%,
+                    2% 35%, 39% 35%
+            );
+        }
+        /* 对号 */
+        .checkmark {
+            clip-path: polygon(
+                    8% 54%, 0% 44%, 6% 38%, 10% 44%,
+                    30% 64%, 86% 8%, 94% 16%, 30% 78%
+            );
+        }
+    </style>
 </head>
 <body>
+<div class="container" id="container"></div>
 
-<div class="container">
-  <!-- 中央文本，白色可见 -->
-  <div class="center-text">
-    <h1>这里是中央文字</h1>
-    <p>泡泡均匀散落在周围，鼠标悬停有波纹动画，点击可跳转</p>
-  </div>
+<script>
+    /*
+      1) 定义一批图案(这里示例 5种形状 × 30 => 150 个)
+      2) 对每个图案设:
+         - 随机形状
+         - 椭圆中心(cx, cy)在一个小矩形或全屏
+         - 椭圆半径(a,b)
+         - 初始angle
+         - 高速speed(50~150)
+         - 随机颜色
+      3) requestAnimationFrame不停更新位置 => 产生旋转效果
+      4) container上有 filter: blur(8px) => "整个画面"被模糊处理
+    */
 
-  <!-- 5个可点击的泡泡 -->
-  <!-- 根据需要修改 href，实现跳转到不同页面或链接 -->
-  <a class="bubble bubble1" href="https://example.com"></a>
-  <a class="bubble bubble2" href="https://example.com"></a>
-  <a class="bubble bubble3" href="https://example.com"></a>
-  <a class="bubble bubble4" href="https://example.com"></a>
-  <a class="bubble bubble5" href="https://example.com"></a>
-</div>
+    // 形状类型
+    const shapeTypes = ["circle", "square", "triangle", "star", "checkmark"];
+    // 5种 × 30 => 150
+    const shapeData = [];
+    shapeTypes.forEach(type => {
+        for (let i = 0; i < 100; i++) {
+            shapeData.push(type);
+        }
+    });
 
+    // 容器
+    const container = document.getElementById("container");
+    let cw = container.clientWidth;
+    let ch = container.clientHeight;
+
+    // 监听窗口大小变化
+    window.addEventListener('resize', () => {
+        cw = container.clientWidth;
+        ch = container.clientHeight;
+    });
+
+    // 随机颜色(带不透明度1, 你可改成0.3等)
+    function randomColor() {
+        const r = Math.floor(Math.random()*256);
+        const g = Math.floor(Math.random()*256);
+        const b = Math.floor(Math.random()*256);
+        return `rgba(${r}, ${g}, ${b}, 1)`;
+    }
+
+    // 存放动画中每个图案的属性
+    const shapes = [];
+
+    // 初始化图案
+    shapeData.forEach(type => {
+        // 让中心点(cx,cy)在屏幕某个区域
+        // 例如右侧中部 ±少量范围 (矩形区域)
+        const centerX = cw * 0.8;
+        const centerY = ch * 0.6;
+        // 定义一个小矩形区域的半径
+        const offsetX = 200; // ±1 像素(几乎同一点)
+        const offsetY = 60; // ±5 像素
+        // 在这个矩形中随机位置 => cx, cy
+        const cx = centerX + (Math.random() * 2 - 1) * offsetX;
+        const cy = centerY + (Math.random() * 2 - 1) * offsetY;
+
+        // 椭圆半径 a, b
+        const a = 800 + Math.random() * 500;
+        const b = 400 + Math.random() * 500;
+
+        // 初始角度 & 速度
+        let angle = Math.random() * 360;
+        let speed = 70 + Math.random() * 40;
+
+        // 创建 DOM
+        const el = document.createElement("div");
+        el.classList.add("shape", type);
+        // 给个随机颜色
+        el.style.backgroundColor = randomColor();
+
+        // 初始放到椭圆中心 => 避免闪烁
+        el.style.transform = `translate(${cx}px, ${cy}px)`;
+
+        container.appendChild(el);
+
+        shapes.push({ el, cx, cy, a, b, angle, speed });
+    });
+
+    // 动画循环
+    function animate() {
+        shapes.forEach(shape => {
+            shape.angle += shape.speed / 240; // 速度
+            shape.angle %= 360;
+
+            const rad = shape.angle * (Math.PI/180);
+            // 椭圆轨道
+            const x = shape.cx + shape.a * Math.cos(rad);
+            const y = shape.cy + shape.b * Math.sin(rad);
+
+            shape.el.style.transform = `translate(${x}px, ${y}px)`;
+        });
+
+        requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+</script>
 </body>
 </html>
