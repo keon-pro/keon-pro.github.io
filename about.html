@@ -36,7 +36,7 @@
             height: 100%;
 
             /* 整个容器加滤镜 => 里面的形状也会跟随一起模糊 */
-            filter: blur(2px);
+            filter: blur(0px);
             /* 可根据需求调整模糊半径，如5px/10px等 */
         }
 
@@ -156,8 +156,8 @@
         const cy = centerY + (Math.random() * 2 - 1) * offsetY;
 
         // 椭圆半径 a, b
-        const a = 600 + Math.random() * 500;
-        const b = 100 + Math.random() * 500;
+        const a = 700 + Math.random() * 500;
+        const b = 300 + Math.random() * 500;
 
         // 初始角度 & 速度
         let angle = Math.random() * 360;
