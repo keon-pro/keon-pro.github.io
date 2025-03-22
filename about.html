@@ -115,7 +115,7 @@
     // 5种 × 30 => 150
     const shapeData = [];
     shapeTypes.forEach(type => {
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 30; i++) {
             shapeData.push(type);
         }
     });
@@ -156,8 +156,8 @@
         const cy = centerY + (Math.random() * 2 - 1) * offsetY;
 
         // 椭圆半径 a, b
-        const a = 800 + Math.random() * 500;
-        const b = 400 + Math.random() * 500;
+        const a = 100 + Math.random() * 500;
+        const b = 80 + Math.random() * 500;
 
         // 初始角度 & 速度
         let angle = Math.random() * 360;
