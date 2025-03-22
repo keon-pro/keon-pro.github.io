@@ -17,7 +17,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #000; /* 背景纯黑 */
+            background: linear-gradient(to bottom right, #000000, #2D6ABC);
             font-family: sans-serif;
         }
 
@@ -53,14 +53,14 @@
             width: 40px;
             height: 40px;
 
-            /* 通过透明度+blur来模拟"磨砂玻璃" */
+            /* 通过透明度+blur来模拟"磨砂玻璃"
             background: rgba(255,255,255, 0.15);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
-            border: 0px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.2);*/
 
             /* 拖尾：更新 transform 时，会在 0.7s 内平滑过渡 */
-            /*transition: transform 0.1s linear;*/
+            transition: transform 0.1s linear;
         }
 
         /* 各种形状定义 */
@@ -106,16 +106,16 @@
          - 初始angle
          - 高速speed(50~150)
          - 随机颜色
-      3) requestAnimationFrame不停更新位置 => 产生旋转效果
-      4) container上有 filter: blur(8px) => "整个画面"被模糊处理
+         - 新增 orientation(椭圆倾斜角度)
+      3) 使用跳帧方式，把逻辑更新限制到120 FPS
     */
 
     // 形状类型
     const shapeTypes = ["circle", "square", "triangle", "star", "checkmark"];
-    // 5种 × 30 => 150
+    // 5种 × 30 => 150 (已改成 5×100=500, 按你的代码)
     const shapeData = [];
     shapeTypes.forEach(type => {
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 100; i++) {
             shapeData.push(type);
         }
     });
@@ -131,7 +131,7 @@
         ch = container.clientHeight;
     });
 
-    // 随机颜色(带不透明度1, 你可改成0.3等)
+    // 随机颜色(带不透明度1)
     function randomColor() {
         const r = Math.floor(Math.random()*256);
         const g = Math.floor(Math.random()*256);
@@ -145,23 +145,25 @@
     // 初始化图案
     shapeData.forEach(type => {
         // 让中心点(cx,cy)在屏幕某个区域
-        // 例如右侧中部 ±少量范围 (矩形区域)
-        const centerX = cw * 0.8;
+        const centerX = cw * 0.6;
         const centerY = ch * 0.6;
-        // 定义一个小矩形区域的半径
-        const offsetX = 200; // ±1 像素(几乎同一点)
-        const offsetY = 60; // ±5 像素
-        // 在这个矩形中随机位置 => cx, cy
+        const offsetX = 300;
+        const offsetY = 50;
+
+        // 随机落点(cx, cy)在这个矩形内
         const cx = centerX + (Math.random() * 2 - 1) * offsetX;
         const cy = centerY + (Math.random() * 2 - 1) * offsetY;
 
         // 椭圆半径 a, b
-        const a = 700 + Math.random() * 500;
-        const b = 300 + Math.random() * 500;
+        const a = 900 + Math.random() * 100;
+        const b = 400 + Math.random() * 100;
 
         // 初始角度 & 速度
         let angle = Math.random() * 360;
-        let speed = 200 + Math.random() * 40;
+        let speed = 70 + Math.random() * 40;
+
+        // 椭圆倾斜角(度)
+        let orientation = 150;
 
         // 创建 DOM
         const el = document.createElement("div");
@@ -174,22 +176,56 @@
 
         container.appendChild(el);
 
-        shapes.push({ el, cx, cy, a, b, angle, speed });
+        shapes.push({ el, cx, cy, a, b, angle, speed, orientation });
     });
 
-    // 动画循环
-    function animate() {
-        shapes.forEach(shape => {
-            shape.angle += shape.speed / 120; // 速度
-            shape.angle %= 360;
 
-            const rad = shape.angle * (Math.PI/180);
-            // 椭圆轨道
-            const x = shape.cx + shape.a * Math.cos(rad);
-            const y = shape.cy + shape.b * Math.sin(rad);
+    /* ================================
+       在此增加帧率控制 (120 FPS)
+       ================================ */
+    const desiredFps = 240;                // 目标帧率
+    const frameInterval = 1000 / desiredFps; // 每帧时长 ~8.33ms
+    let lastTime = 0;                      // 记录上一次实际更新的时间
 
-            shape.el.style.transform = `translate(${x}px, ${y}px)`;
-        });
+    function animate(timestamp) {
+        // 首次，lastTime=0 => 初始化
+        if (!lastTime) {
+            lastTime = timestamp;
+        }
+
+        // 计算本次与上一次更新的时间差
+        const delta = timestamp - lastTime;
+
+        // 若超过目标帧间隔, 执行一次更新
+        if (delta >= frameInterval) {
+            // 与原逻辑相同：更新 shapes 的椭圆坐标
+            shapes.forEach(shape => {
+                shape.angle += shape.speed / 240;
+                shape.angle %= 360;
+
+                const rad = shape.angle * (Math.PI/180);
+
+                // 椭圆局部坐标
+                const xLocal = shape.a * Math.cos(rad);
+                const yLocal = shape.b * Math.sin(rad);
+
+                // orientation -> 弧度
+                const phi = shape.orientation * (Math.PI/180);
+
+                // 旋转后(倾斜椭圆)
+                const xRot = xLocal * Math.cos(phi) - yLocal * Math.sin(phi);
+                const yRot = xLocal * Math.sin(phi) + yLocal * Math.cos(phi);
+
+                // 平移到(cx, cy)
+                const x = shape.cx + xRot;
+                const y = shape.cy + yRot;
+
+                shape.el.style.transform = `translate(${x}px, ${y}px)`;
+            });
+
+            // 记录这次更新的时间戳
+            lastTime = timestamp;
+        }
 
         requestAnimationFrame(animate);
     }
