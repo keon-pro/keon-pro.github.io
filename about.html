@@ -180,7 +180,7 @@
     // 动画循环
     function animate() {
         shapes.forEach(shape => {
-            shape.angle += shape.speed / 120; // 速度
+            shape.angle += shape.speed / 100; // 速度
             shape.angle %= 360;
 
             const rad = shape.angle * (Math.PI/180);
