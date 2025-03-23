@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>椭圆高速旋转 - 图案示例(黑色背景+整体模糊)</title>
+    <style>
+        /*
+          =============
+          页面整体设置
+          =============
+          1) 纯黑背景
+          2) 不出现滚动条
+        */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(to bottom right, #000000, #2D6ABC);
+            font-family: sans-serif;
+        }
+
+        /*
+          =============
+          容器
+          =============
+          1) 占满整个视口
+          2) 使用 filter: blur(...) 让容器内所有元素都被模糊处理
+             若你想让图案保持清晰，只模糊纯背景，则需要别的思路，
+             但本示例按"将整个画面作为背景添加模糊"的需求来做。
+        */
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+
+            /* 整个容器加滤镜 => 里面的形状也会跟随一起模糊 */
+            filter: blur(5px);
+            /* 可根据需求调整模糊半径，如5px/10px等 */
+        }
+
+        /*
+          =============
+          图案基础样式
+          =============
+          1) 半透明 + 磨砂玻璃质感(backdrop-filter)
+          2) 拖尾效果(transition)
+          （此处虽然有backdrop-filter, 但最终仍会被外层container的filter叠加）
+        */
+        .shape {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+
+            /* 通过透明度+blur来模拟"磨砂玻璃"
+            background: rgba(255,255,255, 0.15);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);*/
+
+            /* 拖尾：更新 transform 时，会在 0.7s 内平滑过渡 */
+            transition: transform 0.1s linear;
+        }
+
+        /* 各种形状定义 */
+        /* 圆形 */
+        .circle {
+            border-radius: 50%;
+        }
+        /* 正方形 */
+        .square {
+            /* 默认就行 */
+        }
+        /* 三角形 */
+        .triangle {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        /* 五角星 */
+        .star {
+            clip-path: polygon(
+                    50% 0%, 61% 35%, 98% 35%, 68% 57%,
+                    79% 91%, 50% 70%, 21% 91%, 32% 57%,
+                    2% 35%, 39% 35%
+            );
+        }
+        /* 对号 */
+        .checkmark {
+            clip-path: polygon(
+                    8% 54%, 0% 44%, 6% 38%, 10% 44%,
+                    30% 64%, 86% 8%, 94% 16%, 30% 78%
+            );
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="container"></div>
+
+<script>
+    /*
+      1) 定义一批图案(这里示例 5种形状 × 30 => 150 个)
+      2) 对每个图案设:
+         - 随机形状
+         - 椭圆中心(cx, cy)在一个小矩形或全屏
+         - 椭圆半径(a,b)
+         - 初始angle
+         - 高速speed(50~150)
+         - 随机颜色
+         - 新增 orientation(椭圆倾斜角度)
+      3) 使用跳帧方式，把逻辑更新限制到120 FPS
+    */
+
+    // 形状类型
+    const shapeTypes = ["circle", "square", "triangle", "star", "checkmark"];
+    // 5种 × 30 => 150 (已改成 5×100=500, 按你的代码)
+    const shapeData = [];
+    shapeTypes.forEach(type => {
+        for (let i = 0; i < 100; i++) {
+            shapeData.push(type);
+        }
+    });
+
+    // 容器
+    const container = document.getElementById("container");
+    let cw = container.clientWidth;
+    let ch = container.clientHeight;
+
+    // 监听窗口大小变化
+    window.addEventListener('resize', () => {
+        cw = container.clientWidth;
+        ch = container.clientHeight;
+    });
+
+    // 随机颜色(带不透明度1)
+    function randomColor() {
+        const r = Math.floor(Math.random()*256);
+        const g = Math.floor(Math.random()*256);
+        const b = Math.floor(Math.random()*256);
+        return `rgba(${r}, ${g}, ${b}, 1)`;
+    }
+
+    // 存放动画中每个图案的属性
+    const shapes = [];
+
+    // 初始化图案
+    shapeData.forEach(type => {
+        // 让中心点(cx,cy)在屏幕某个区域
+        const centerX = cw * 0.6;
+        const centerY = ch * 0.6;
+        const offsetX = 300;
+        const offsetY = 50;
+
+        // 随机落点(cx, cy)在这个矩形内
+        const cx = centerX + (Math.random() * 2 - 1) * offsetX;
+        const cy = centerY + (Math.random() * 2 - 1) * offsetY;
+
+        // 椭圆半径 a, b
+        const a = 900 + Math.random() * 100;
+        const b = 400 + Math.random() * 100;
+
+        // 初始角度 & 速度
+        let angle = Math.random() * 360;
+        let speed = 70 + Math.random() * 40;
+
+        // 椭圆倾斜角(度)
+        let orientation = 150;
+
+        // 创建 DOM
+        const el = document.createElement("div");
+        el.classList.add("shape", type);
+        // 给个随机颜色
+        el.style.backgroundColor = randomColor();
+
+        // 初始放到椭圆中心 => 避免闪烁
+        el.style.transform = `translate(${cx}px, ${cy}px)`;
+
+        container.appendChild(el);
+
+        shapes.push({ el, cx, cy, a, b, angle, speed, orientation });
+    });
+
+
+    /* ================================
+       在此增加帧率控制 (120 FPS)
+       ================================ */
+    const desiredFps = 240;                // 目标帧率
+    const frameInterval = 1000 / desiredFps; // 每帧时长 ~8.33ms
+    let lastTime = 0;                      // 记录上一次实际更新的时间
+
+    function animate(timestamp) {
+        // 首次，lastTime=0 => 初始化
+        if (!lastTime) {
+            lastTime = timestamp;
+        }
+
+        // 计算本次与上一次更新的时间差
+        const delta = timestamp - lastTime;
+
+        // 若超过目标帧间隔, 执行一次更新
+        if (delta >= frameInterval) {
+            // 与原逻辑相同：更新 shapes 的椭圆坐标
+            shapes.forEach(shape => {
+                shape.angle += shape.speed / 240;
+                shape.angle %= 360;
+
+                const rad = shape.angle * (Math.PI/180);
+
+                // 椭圆局部坐标
+                const xLocal = shape.a * Math.cos(rad);
+                const yLocal = shape.b * Math.sin(rad);
+
+                // orientation -> 弧度
+                const phi = shape.orientation * (Math.PI/180);
+
+                // 旋转后(倾斜椭圆)
+                const xRot = xLocal * Math.cos(phi) - yLocal * Math.sin(phi);
+                const yRot = xLocal * Math.sin(phi) + yLocal * Math.cos(phi);
+
+                // 平移到(cx, cy)
+                const x = shape.cx + xRot;
+                const y = shape.cy + yRot;
+
+                shape.el.style.transform = `translate(${x}px, ${y}px)`;
+            });
+
+            // 记录这次更新的时间戳
+            lastTime = timestamp;
+        }
+
+        requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+</script>
+</body>
+</html>
